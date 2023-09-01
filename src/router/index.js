@@ -1,6 +1,7 @@
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '@/store';
 const routerPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function (location) {
     return routerPush.call(this, location).catch(err => { })
@@ -12,7 +13,7 @@ const router = new VueRouter({
 
     routes: [
         {
-            path: '/', component: resolve => require(['../pages/Main'], resolve), redirect: '/recommand', children: [
+            path: '/', component: resolve => require(['../layout/index.vue'], resolve), redirect: '/recommand', children: [
                 {
                     name: 'recommand', path: '/recommand', component: resolve => require(['../pages/recommand'], resolve),
                 },
@@ -36,33 +37,51 @@ const router = new VueRouter({
                     name: 'listDetail', path: '/list', component: resolve => require(['../pages/ListDetail'], resolve), props($route) {
                         return {
                             id: $route.query.id,
-                            name: $route.query.name,
-
                         }
                     },
-                }, 
+                },
                 {
                     name: 'dayRemcomand', path: '/dayRemcomands', component: resolve => require(['../pages/dayRemcomand'], resolve)
-                    
-                }, 
-                
-                
+
+                },
+
+
                 {
                     name: 'videodetail', path: '/videodetail', component: resolve => require(['../pages/VideoDetail'], resolve),
                 },
                 {
                     name: 'selfPage', path: '/selfPage', component: resolve => require(['../pages/selfPage'], resolve),
                 },
-                
+
 
             ]
 
 
         },
         {
-            path: '/userLogin', name: 'userLogin', component: resolve => require(['../components/UserLogin'], resolve),
+            path: '/userLogin', name: 'userLogin', component: resolve => require(['../pages/UserLogin.vue'], resolve),
         }
 
     ]
 })
+
+
+//判断有没有token
+router.beforeEach((to, from, next) => {
+    console.log(store);
+    const token = store.state.user.token
+    if (token) {
+        next()
+    } else {
+        // 添加检查，如果已经在userLogin页面，则不再导航
+        if (to.name !== 'userLogin') {
+            router.push({
+                name: "userLogin",
+            });
+        } else {
+            next()
+        }
+    }
+})
+
 export default router

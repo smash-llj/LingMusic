@@ -20,8 +20,8 @@
 
       <el-dropdown trigger="click">
         <div class="topic">
-          <img class="profile-img" :src="uid.avatarUrl" alt="点击头像即可退出" />
-          <p class="userNames">{{ uid.nickname }}</p>
+          <img class="profile-img" :src="userImg" alt="点击头像即可退出" />
+          <p class="userNames">{{ userName }}</p>
         </div>
 
         <el-dropdown-menu>
@@ -45,8 +45,9 @@
 </template>
 
 <script>
-import request from "../../src/config/request";
-import NavWheater from "../components/NavWheater.vue";
+import { mapGetters, mapActions } from "vuex";
+import request from "../../config/request";
+import NavWheater from "../../components/NavWheater.vue";
 export default {
   name: "NacHeader",
   data() {
@@ -57,8 +58,11 @@ export default {
       showKeyword: ''
     };
   },
+  computed: {
+    ...mapGetters(['userName', 'userImg'])
+  },
   methods: {
-
+    ...mapActions('user', ['loginOut']),
     goSelf() {
       this.$router.push({
         name: 'selfPage',
@@ -89,8 +93,7 @@ export default {
 
 
     exit() {
-      //清除本地存储所有数据
-      localStorage.clear();
+      this.loginOut()
       this.$message({
         showClose: true,
         message: "退出成功",
@@ -119,9 +122,6 @@ export default {
     },
   },
   mounted() {
-    let userInfo = localStorage.getItem("userInfo");
-    let uid = JSON.parse(userInfo);
-    this.uid = uid;
     this.getHotSearch()
 
   },

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="play">
     <div class="songControl">
       <div class="playmusic">
         <div class="musicContainer">
@@ -24,9 +24,8 @@
           <audio :src="Url" autoplay @play="onPlay" @pause="onPause" @ended="onEnded" id="audio" @timeupdate="updata"
             @canplay="getDuration"></audio>
           <div class="controls">
-            <i class="iconfont" @click="songType" :class="
-              songPlayType ? 'icon-23_shunxubofang' : 'icon-suijibofang'
-            "></i>
+            <i class="iconfont" @click="songType" :class="songPlayType ? 'icon-23_shunxubofang' : 'icon-suijibofang'
+              "></i>
             <i class="iconfont icon-shangyishou" @click="preventList"></i>
             <i class="iconfont" @click="isPlay(link)" :class="isActions ? 'icon-zanting' : ' icon-bofang'"></i>
             <i class="iconfont icon-kuaijin" @click="nextList"></i>
@@ -63,8 +62,6 @@
 
 <script>
 import request from "../config/request";
-import needLogin from "../config/needLogin";
-import axios from "axios";
 export default {
   name: "Play",
   props: ["link", "type"],
@@ -119,11 +116,11 @@ export default {
       this.isplayShow = false;
     },
     isTopic() {
-      this.$emit("showPage", true);
+      this.$emit("showDetail", true);
     },
     //获取歌曲url
     async getUrl(Sid) {
-      let url = await needLogin("/song/url", { id: Sid });
+      let url = await request("/song/url", { id: Sid });
 
       this.Url = url.data[0].url;
     },
@@ -163,7 +160,7 @@ export default {
       this.activeJindu();
       //获取当前播放秒数
       let s = this.time_to_sec(this.current);
-      this.$emit("timer", s);
+      // this.$emit("timer", s);
       // console.log("长度为" + this.lyricsObjArr.length);
       // 匹配歌词并滚动歌词
     },
@@ -348,7 +345,6 @@ export default {
     this.$bus.$on("musicList", (x) => {
       this.musicId = x.musicId;
       this.list = x.list;
-
       this.indexs = x.index;
     });
   },
@@ -375,175 +371,204 @@ export default {
 };
 </script>
 
-<style >
-.el-drawer {
-  border-radius: 10px;
-  background-color: #564859;
-}
-
-.el-drawer__body::-webkit-scrollbar {
-  display: none;
-}
-
-.asideNav .asideNavTitle {
-  width: 100%;
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  font-size: 16px;
-  background: var(--content-bg);
-}
-
-.asideNav .asideNavList {
-  width: 100%;
-  height: 100%;
-}
-
-.asideNav .asideNavList ul {
-  width: 100%;
-  height: 100%;
-}
-
-.asideNav .asideNavList ul li {
-  box-sizing: border-box;
-  padding-top: 20px;
+<style lang="scss" scoped>
+.play {
   width: 100%;
 
-  display: flex;
-  line-height: 50px;
-  padding: 10px;
-}
+  .asideNav {
+    width: 100%;
 
-.asideNav .asideNavList ul li .asidenavImg {
-  width: 50px;
-  height: 50px;
-  border-radius: 20px;
-}
+    .asideNavTitle {
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      font-size: 16px;
+      background: var(--content-bg);
+    }
 
-.songAuthorInfo {
-  display: flex;
-}
+    .asideNavList {
+      width: 100%;
+      height: 100%;
 
-.asideNav .asideNavList ul li p {
-  width: 100px;
-  height: 50px;
-  line-height: 50px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin: 0 10px;
-}
+      ul {
+        width: 100%;
+        height: 100%;
 
-.jindu {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 2px;
-  border-radius: 3px;
-  background-color: grey;
-}
+        li {
+          box-sizing: border-box;
+          padding-top: 20px;
+          width: 100%;
+          display: flex;
+          line-height: 50px;
+          padding: 10px;
 
-.barcontrol {
-  position: relative;
-  width: 100%;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.2);
-  /* background-color: pink; */
-  margin: auto;
-}
+          .asidenavImg {
+            width: 50px;
+            height: 50px;
+            border-radius: 20px;
+          }
 
-/* 小红圈 */
-.radircontrol {
-  position: absolute;
-  top: 0px;
-  left: 0;
-  z-index: 1;
-  height: 2px;
-  background: red;
-}
+          .songAuthorInfo {
+            display: flex;
 
-.autocircle {
-  position: absolute;
-  right: -6px;
-  top: -3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #fff;
-}
+            p {
+              width: 100px;
+              height: 50px;
+              line-height: 50px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              margin: 0 10px;
+            }
+          }
 
-.songControl {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 1000px;
-  height: 60px;
-  background-color: #564859;
-  border-radius: 0px;
-  /* //#332746 */
-}
 
-.musicContainer {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-around;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  /* background-color: brown; */
-}
 
-.musicContainer img {
-  width: 50px;
-  height: 50px;
-  margin: 0 20px;
-  border-radius: 10px;
-}
 
-.songAuthor {
-  width: 200px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-}
 
-.songAuthor p {
-  width: 150px;
-  height: 20px;
-  line-height: 20px;
-  font-size: 14px;
-  margin: 5px auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  /* 设置对齐模式 */
-  -webkit-line-clamp: 1;
-}
+        }
+      }
 
-.controls {
-  width: 600px;
-  height: 60px;
-  line-height: 60px;
-  /* background-color: aquamarine; */
-}
 
-.controls i {
-  font-size: 25px !important;
-  margin: 0 50px;
-}
+    }
 
-.songTimer {
-  width: 200px;
-  height: 60px;
-  position: relative;
-  /* background-color: blue; */
-}
 
-.timer {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  }
+
+
+
+  .songControl {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #564859;
+    border-radius: 0px;
+    /* //#332746 */
+
+    .musicContainer {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-around;
+      position: relative;
+      width: 100%;
+      height: 100%;
+
+      .jindu {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 2px;
+        border-radius: 3px;
+        background-color: grey;
+
+        .barcontrol {
+          position: relative;
+          width: 100%;
+          height: 2px;
+          background: rgba(0, 0, 0, 0.2);
+          /* background-color: pink; */
+          margin: auto;
+
+          /* 小红圈 */
+          .radircontrol {
+            position: absolute;
+            top: 0px;
+            left: 0;
+            z-index: 1;
+            height: 2px;
+            background: red;
+
+            .autocircle {
+              position: absolute;
+              right: -6px;
+              top: -3px;
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: #fff;
+            }
+          }
+
+        }
+      }
+
+
+      .songAuthor {
+        width: 200px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+
+        p {
+          width: 150px;
+          height: 20px;
+          line-height: 20px;
+          font-size: 14px;
+          margin: 5px auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          /* 设置对齐模式 */
+          -webkit-line-clamp: 1;
+        }
+
+      }
+
+      .controls {
+        width: 600px;
+        height: 60px;
+        line-height: 60px;
+
+
+        i {
+          font-size: 25px !important;
+          margin: 0 50px;
+        }
+
+
+
+      }
+
+
+
+      .songTimer {
+        width: 200px;
+        height: 60px;
+        position: relative;
+
+        .timer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+
+
+
+      img {
+        width: 50px;
+        height: 50px;
+        margin: 0 20px;
+        border-radius: 10px;
+      }
+
+
+    }
+
+  }
+
+  .el-drawer {
+    border-radius: 10px;
+    background-color: #564859;
+  }
+
+  .el-drawer__body::-webkit-scrollbar {
+    display: none;
+  }
 }
 </style>

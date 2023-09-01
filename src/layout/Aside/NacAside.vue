@@ -3,12 +3,7 @@
     <div class="side-wrapper"></div>
     <div class="side-wrapper">
       <div class="side-menu">
-        <div
-          class="asideitem"
-          v-for="(item, index) in navListDate"
-          :key="index"
-          @click="jopContainer(item, index)"
-        >
+        <div class="asideitem" v-for="(item, index) in navListDate" :key="index" @click="jopContainer(item, index)">
           <i class="iconfont"></i>
           {{ item.name }}
         </div>
@@ -19,7 +14,7 @@
 </template>
 
 <script>
-import AsideTimer from "../components/AsideTimer.vue";
+import AsideTimer from "../../components/AsideTimer.vue";
 export default {
   name: "NacAside",
   data() {
@@ -47,10 +42,11 @@ export default {
 };
 </script>
 
-<style >
+<style lang="scss" scoped>
 .active {
   background-color: rgba(0, 0, 0, 0.2);
 }
+
 .asideitem {
   width: 100%;
   height: 50px;
@@ -59,20 +55,18 @@ export default {
   line-height: 50px;
   color: #fff;
 }
+
 .iconfont {
   font-size: 25px !important;
 }
+
 i {
   margin-right: 10px;
 }
-.wrapper {
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
-}
+
 
 .left-side {
-  flex-basis: 200px;
+  width: 15%;
   border-right: 1px solid var(--border-color);
   padding: 26px;
   overflow: auto;
@@ -85,7 +79,7 @@ i {
   }
 }
 
-.side-wrapper + .side-wrapper {
+.side-wrapper+.side-wrapper {
   margin-top: 10px;
 }
 

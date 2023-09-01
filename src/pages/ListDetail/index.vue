@@ -1,17 +1,17 @@
 <template>
   <div class="listContainer">
     <div class="top">
-      <div class="left"><img v-lazy="this.$route.query.img" /></div>
+      <div class="left"><img v-lazy="groupInfo.coverImgUrl" /></div>
       <div class="right">
         <div class="songTitle">
-          <h3>{{ name }}</h3>
+          <h3>{{ groupInfo.name }}</h3>
         </div>
         <div class="songAuthor">
-          <img :src="this.$route.query.author" />
-          <h4>{{ this.$route.query.authorName }}</h4>
+          <img :src="groupAuthor.avatarUrl" />
+          <h4>{{ groupAuthor.nickname }}</h4>
         </div>
         <div class="jiesao">
-          <div>{{ this.$route.query.ds }}</div>
+          <div v-html="groupInfo.description"></div>
         </div>
       </div>
     </div>
@@ -34,13 +34,15 @@
 </template>
   
 <script>
-import request from "../../config/request";
 import playTag from "../../components/playTag.vue";
+import { getSongGroup } from "./api.js"
 export default {
   name: "songList",
   props: ["id", "name"],
   data() {
     return {
+      groupInfo: {},//歌单信息
+      groupAuthor: {},//歌单创造人信息
       songDateList: [],
       playlist: {},
       baseUrl:
@@ -59,16 +61,19 @@ export default {
       });
       //有待优化
     },
-    async getListDate() {
-      let songDateList = await request("/playlist/track/all", {
-        id: this.$route.query.id,
-        limit: 100,
-      });
-      this.songDateList = songDateList.songs;
+    async getSongGroupDetail() {
+      let id = this.$route.query.id
+      let res = await getSongGroup({ id })
+      if (res.code === 200) {
+        this.groupInfo = res.playlist
+        this.groupAuthor = res.playlist.creator
+        this.songDateList = res.playlist.tracks
+      }
+
     },
   },
   mounted() {
-    this.getListDate();
+    this.getSongGroupDetail()
   },
 };
 </script>

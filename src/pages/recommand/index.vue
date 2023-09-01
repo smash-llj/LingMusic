@@ -25,7 +25,7 @@
     <div class="playList">
       <div class="content-section-title">热门歌单</div>
       <div class="apps-card">
-        <div class="app-card" @click="goDay">
+        <div class="app-card" @click="goRecommandDaySong">
           <img v-lazy="dayImg" />
           <p>每日推荐30首</p>
         </div>
@@ -39,8 +39,8 @@
 </template>
 
 <script>
-import request from "../../config/request";
-import needLogin from "../../config/needLogin"
+
+import { getNewSongList, ImgLoop, recommandList, FirstImg } from './api'
 export default {
   name: "recommand",
   data() {
@@ -57,27 +57,16 @@ export default {
       console.log(item);
       this.$router.push({
         name: "listDetail",
-        query: {
-          id: item.id,
-          name: item.name,
-          author: item.creator.avatarUrl,
-          ds: item.description,
-          img: item.coverImgUrl,
-          authorName: item.creator.nickname,
-        },
+        query: { id: item.id, }
       });
     },
 
-    goDay() {
+    goRecommandDaySong() {
       this.$router.push({
         name: "dayRemcomand",
-
       });
     },
-    async demo() {
-      let d = await needLogin('/recommend/songs')
-      this.dayImg = d.data.dailySongs[0].al.picUrl
-    },
+
 
     play(item) {
       this.$bus.$emit("musicId", item.id);
@@ -85,32 +74,46 @@ export default {
 
     //获取轮播图数据
     async getLoopDate() {
-      let Date = await request("/banner");
-      // console.log(Date);
-      this.loopList = Date.banners;
+      let res = await ImgLoop();
+      console.log(res.code === 200);
+      if (res) this.loopList = res.banners;
+
     },
     //获取新歌速递数据
     async getNewSong() {
-      let song = await request("/personalized/newsong", { limit: 3 });
-      this.newSongList = song.result;
+      let res = await getNewSongList({ limit: 3 });
+      if (res.code === 200) {
+        this.newSongList = res.result;
+      }
     },
 
     //获取推荐歌单数据
     async getLove() {
-      let Date = await request("/top/playlist", { limit: 28 });
-      this.playList = Date.playlists;
+      let res = await recommandList({ limit: 28 });
+      if (res.code === 200) this.playList = res.playlists;
     },
+
+    //获取每日推荐第一张图片
+    async recommandFirstImg() {
+      let res = await FirstImg()
+      if (res.code === 200) {
+        this.dayImg = res.data.dailySongs[0].al.picUrl
+      }
+
+    },
+
+
   },
   created() {
     this.getLoopDate();
     this.getNewSong();
     this.getLove();
-    this.demo()
+    this.recommandFirstImg()
   },
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
 .playList {
   margin-top: 20px;
 }

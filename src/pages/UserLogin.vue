@@ -47,7 +47,9 @@
 </template>
   
 <script >
+import { mapActions } from "vuex";
 import request from "../../src/config/request";
+import { instance } from "../../src/config/request";
 export default {
   data() {
     return {
@@ -60,6 +62,12 @@ export default {
     };
   },
   methods: {
+    ...mapActions('user', ['phoneLogin']),
+
+
+
+    //二维码登录
+
     //获取产生的key
     async getCode() {
       let k = await request("/login/qr/key", { timer: new Date().getTime() });
@@ -74,8 +82,6 @@ export default {
         timer: new Date().getTime(),
         qrimg: true,
       });
-      console.log("获取二维码图片");
-      console.log(s);
       this.img = s.data.qrimg;
       this.checkCodeStatus();
     },
@@ -86,7 +92,6 @@ export default {
         timerstamp: new Date().getTime(), //传入参数时间戳
         withCredentials: true,
       });
-      console.log(m);
 
       //判断是否授权，如果授权获取用户cookie
       if (m.code === 803) {
@@ -100,47 +105,13 @@ export default {
       let getStatus = await request("/login/status", {
         cookie: localStorage.getItem("cookie"),
       });
+      this.setUserInfo(getStatus.data.profile)
       localStorage.setItem("userInfo", JSON.stringify(getStatus.data.profile));
-      // console.log(getStatus);
       this.$router.push({
         name: "recommand",
       });
     },
 
-    //封装一个登录请求
-    async phoneLogin() {
-      let uDate = await request("/login/cellphone", {
-        phone: this.uName,
-        password: this.uPassword,
-        islogin: true,
-      });
-      if (uDate.code === 200) {
-        //把用户信息存储到浏览器本地
-        localStorage.setItem("userInfo", JSON.stringify(uDate.profile));
-        this.$router.push({
-          name: "recommand",
-        });
-      } else if (uDate.code === 501) {
-        this.$message({
-          showClose: true,
-          message: "手机号码错误",
-          type: "warning",
-        });
-      } else if (uDate.code === 502) {
-        this.$message({
-          showClose: true,
-          message: "密码错误",
-          type: "warning",
-        });
-      } else {
-        this.$message({
-          showClose: true,
-          message: "网络拥挤，稍后再试试",
-          type: "warning",
-        });
-      }
-      console.log(uDate);
-    },
     //点击登录提交网络请求
     go() {
       //输入手机号和密码不能为空
@@ -161,17 +132,8 @@ export default {
             type: "error",
           });
         } else {
-          //验证密码是否符合规则
-          let passwordmsg = /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]{8,18}$/;
-          if (!passwordmsg.test(this.uPassword)) {
-            this.$message({
-              showClose: true,
-              message: "检查密码",
-              type: "error",
-            });
-          } else {
-            this.phoneLogin();
-          }
+
+          this.phoneLogin({ uName: this.uName, uPassword: this.uPassword });
         }
       }
     },
